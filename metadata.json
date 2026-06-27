@@ -1,0 +1,6 @@
+{
+  "name": "Digital Presence Audit",
+  "description": "A premium interactive assessment tool for freelancers and agencies to measure and optimize their online presence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
