@@ -50,7 +50,12 @@ export default function OwnerPortal({ onClose }: OwnerPortalProps) {
   };
 
   const handleSaveWebhook = () => {
-    localStorage.setItem('wdk_lead_webhook_url', webhookUrl.trim());
+    let url = webhookUrl.trim();
+    if (url.startsWith('http://')) {
+      url = 'https://' + url.slice(7);
+      setWebhookUrl(url);
+    }
+    localStorage.setItem('wdk_lead_webhook_url', url);
     setSaveStatus('Webhook URL saved successfully!');
     setTimeout(() => setSaveStatus(''), 3000);
   };
@@ -59,24 +64,32 @@ export default function OwnerPortal({ onClose }: OwnerPortalProps) {
     if (!webhookUrl) return;
     setTestStatus('Sending test payload...');
 
-    fetch(webhookUrl.trim(), {
+    let url = webhookUrl.trim();
+    if (url.startsWith('http://')) {
+      url = 'https://' + url.slice(7);
+      setWebhookUrl(url);
+    }
+
+    const payload = {
+      event: 'test_lead',
+      timestamp: new Date().toISOString(),
+      lead: {
+        name: 'Jane Doe (Test Lead)',
+        email: 'jane.doe@example.com',
+        industry: 'E-commerce',
+        website: 'https://www.example.com',
+        social: '@janedoe',
+        score: 85,
+      },
+      message: 'Hello! This is a test event from your Web Design King Lead Engine.',
+    };
+
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        event: 'test_lead',
-        timestamp: new Date().toISOString(),
-        lead: {
-          name: 'Jane Doe (Test Lead)',
-          email: 'jane.doe@example.com',
-          industry: 'E-commerce',
-          website: 'https://www.example.com',
-          social: '@janedoe',
-          score: 85,
-        },
-        message: 'Hello! This is a test event from your Web Design King Lead Engine.',
-      }),
+      body: JSON.stringify(payload),
     })
       .then((res) => {
         if (res.ok || res.status === 200 || res.status === 201) {
@@ -84,11 +97,28 @@ export default function OwnerPortal({ onClose }: OwnerPortalProps) {
         } else {
           setTestStatus(`Test sent, but server responded with status: ${res.status}`);
         }
-        setTimeout(() => setTestStatus(''), 5000);
+        setTimeout(() => setTestStatus(''), 6000);
       })
       .catch((err) => {
-        setTestStatus(`Test dispatch failed: ${err.message || err}`);
-        setTimeout(() => setTestStatus(''), 5000);
+        console.warn('Standard test dispatch failed. Retrying with no-cors mode...', err);
+        setTestStatus('Retrying with no-cors mode bypass...');
+        
+        fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+          body: JSON.stringify(payload),
+        })
+          .then(() => {
+            setTestStatus('Dispatched test payload via CORS-bypass mode! Please check Zapier / Make.');
+            setTimeout(() => setTestStatus(''), 8000);
+          })
+          .catch((fallbackErr) => {
+            setTestStatus(`Test dispatch failed completely: ${fallbackErr.message || fallbackErr}`);
+            setTimeout(() => setTestStatus(''), 8000);
+          });
       });
   };
 

@@ -233,19 +233,43 @@ export function addLead(userInfo: UserInfo, score: number): void {
   // Trigger webhook if configured
   const webhookUrl = localStorage.getItem('wdk_lead_webhook_url');
   if (webhookUrl) {
-    fetch(webhookUrl, {
+    let url = webhookUrl.trim();
+    if (url.startsWith('http://')) {
+      url = 'https://' + url.slice(7);
+    }
+
+    const payload = {
+      event: 'new_lead',
+      timestamp,
+      lead: leadData,
+      source: 'Web Design King Digital Audit Engine',
+    };
+
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        event: 'new_lead',
-        timestamp,
-        lead: leadData,
-        source: 'Web Design King Digital Audit Engine',
-      }),
-    }).catch((err) => {
-      console.error('Webhook trigger failed:', err);
-    });
+      body: JSON.stringify(payload),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          console.warn(`Webhook responded with status ${res.status}`);
+        }
+      })
+      .catch((err) => {
+        console.warn('Standard webhook fetch failed. Attempting no-cors fallback...', err);
+        // Fallback to no-cors mode in case of browser-level CORS block
+        fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+          body: JSON.stringify(payload),
+        }).catch((fallbackErr) => {
+          console.error('Fallback webhook fetch failed:', fallbackErr);
+        });
+      });
   }
 }
