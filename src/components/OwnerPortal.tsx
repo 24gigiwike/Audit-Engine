@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { getAnalytics, incrementAnalytics } from '../utils';
+import { getAnalytics, incrementAnalytics, getFirebaseAnalytics, clearFirebaseAnalytics } from '../utils';
 import { AnalyticsData } from '../types';
-import { X, Search, Download, Trash2, Calendar, Mail, Star, Users, KeyRound, Check, AlertCircle, Send, Radio } from 'lucide-react';
+import { X, Search, Download, Trash2, Calendar, Mail, Star, Users, KeyRound, Check, AlertCircle, Send, Radio, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface OwnerPortalProps {
@@ -30,11 +30,25 @@ export default function OwnerPortal({ onClose }: OwnerPortalProps) {
     leads: [],
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchAnalytics = () => {
+    setIsRefreshing(true);
+    getFirebaseAnalytics()
+      .then((data) => {
+        setAnalytics(data);
+      })
+      .catch((err) => {
+        console.error('Failed to sync analytics:', err);
+      })
+      .finally(() => {
+        setIsRefreshing(false);
+      });
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Refresh analytics from local storage only if authenticated
-      setAnalytics(getAnalytics());
+      fetchAnalytics();
     }
   }, [isAuthenticated]);
 
@@ -123,15 +137,26 @@ export default function OwnerPortal({ onClose }: OwnerPortalProps) {
   };
 
   const handleClearAnalytics = () => {
-    if (confirm('Are you sure you want to reset all tracking metrics and delete all leads? This action cannot be undone.')) {
-      localStorage.removeItem('wdk_digital_presence_audit_analytics');
-      setAnalytics({
-        pageVisits: 1, // Reset page visits to 1 on fresh clear
-        assessmentStarts: 0,
-        assessmentCompletions: 0,
-        ctaClicks: 0,
-        leads: [],
-      });
+    if (confirm('Are you sure you want to reset all tracking metrics and delete all leads from both local cache and Firestore cloud? This action cannot be undone.')) {
+      setIsRefreshing(true);
+      clearFirebaseAnalytics()
+        .then(() => {
+          localStorage.removeItem('wdk_digital_presence_audit_analytics');
+          setAnalytics({
+            pageVisits: 0,
+            assessmentStarts: 0,
+            assessmentCompletions: 0,
+            ctaClicks: 0,
+            leads: [],
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to clear cloud analytics:', err);
+          alert('Could not clear Firestore analytics. Please check network connection.');
+        })
+        .finally(() => {
+          setIsRefreshing(false);
+        });
     }
   };
 
@@ -202,12 +227,24 @@ export default function OwnerPortal({ onClose }: OwnerPortalProps) {
               <p className="text-xs text-gray-400 font-bold tracking-wide uppercase font-mono">Real-time Acquisition Insights</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-full hover:bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors cursor-pointer border border-gray-100/50"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && (
+              <button
+                onClick={fetchAnalytics}
+                disabled={isRefreshing}
+                className="w-9 h-9 rounded-full hover:bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#42c28b] transition-colors cursor-pointer border border-gray-100/50 disabled:opacity-50"
+                title="Refresh Cloud Data"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#42c28b]' : ''}`} />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-full hover:bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors cursor-pointer border border-gray-100/50"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Drawer Scrollable Body or Password Gate */}

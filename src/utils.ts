@@ -1,5 +1,7 @@
 import { AuditResult, UserInfo, AnalyticsData } from './types';
 import { AUDIT_QUESTIONS } from './data';
+import { db } from './lib/firebase';
+import { doc, setDoc, getDoc, collection, getDocs, deleteDoc, increment } from 'firebase/firestore';
 
 export function calculateAuditResult(
   answers: Record<string, number>,
@@ -214,6 +216,17 @@ export function incrementAnalytics(metric: 'pageVisits' | 'assessmentStarts' | '
   const current = getAnalytics();
   current[metric] = (current[metric] || 0) + 1;
   localStorage.setItem(ANALYTICS_KEY, JSON.stringify(current));
+
+  try {
+    const docRef = doc(db, 'analytics', 'counters');
+    setDoc(docRef, {
+      [metric]: increment(1)
+    }, { merge: true }).catch((err) => {
+      console.warn('Firestore increment failed:', err);
+    });
+  } catch (err) {
+    console.warn('Firestore increment setup failed:', err);
+  }
 }
 
 export function addLead(userInfo: UserInfo, score: number): void {
@@ -229,6 +242,24 @@ export function addLead(userInfo: UserInfo, score: number): void {
   }
   // Also make sure completions count incremented
   localStorage.setItem(ANALYTICS_KEY, JSON.stringify(current));
+
+  try {
+    const leadId = userInfo.email.toLowerCase().trim();
+    const docRef = doc(db, 'leads', leadId);
+    setDoc(docRef, {
+      name: userInfo.name,
+      email: userInfo.email,
+      industry: userInfo.industry,
+      website: userInfo.website || '',
+      social: userInfo.social || '',
+      score,
+      timestamp,
+    }, { merge: true }).catch((err) => {
+      console.warn('Firestore addLead failed:', err);
+    });
+  } catch (err) {
+    console.warn('Firestore addLead setup failed:', err);
+  }
 
   // Trigger webhook if configured
   const webhookUrl = localStorage.getItem('wdk_lead_webhook_url');
@@ -271,5 +302,81 @@ export function addLead(userInfo: UserInfo, score: number): void {
           console.error('Fallback webhook fetch failed:', fallbackErr);
         });
       });
+  }
+}
+
+export async function getFirebaseAnalytics(): Promise<AnalyticsData> {
+  let pageVisits = 0;
+  let assessmentStarts = 0;
+  let assessmentCompletions = 0;
+  let ctaClicks = 0;
+  
+  try {
+    const countersRef = doc(db, 'analytics', 'counters');
+    const countersSnap = await getDoc(countersRef);
+    if (countersSnap.exists()) {
+      const data = countersSnap.data();
+      pageVisits = data.pageVisits || 0;
+      assessmentStarts = data.assessmentStarts || 0;
+      assessmentCompletions = data.assessmentCompletions || 0;
+      ctaClicks = data.ctaClicks || 0;
+    }
+  } catch (err) {
+    console.error('Failed to fetch Firestore analytics:', err);
+    const local = getAnalytics();
+    pageVisits = local.pageVisits;
+    assessmentStarts = local.assessmentStarts;
+    assessmentCompletions = local.assessmentCompletions;
+    ctaClicks = local.ctaClicks;
+  }
+
+  let leads: (UserInfo & { timestamp: string; score: number })[] = [];
+  try {
+    const leadsRef = collection(db, 'leads');
+    const querySnapshot = await getDocs(leadsRef);
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      leads.push({
+        name: data.name || '',
+        email: data.email || '',
+        industry: data.industry || '',
+        website: data.website || '',
+        social: data.social || '',
+        score: data.score || 0,
+        timestamp: data.timestamp || new Date().toISOString(),
+      });
+    });
+    leads.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  } catch (err) {
+    console.error('Failed to fetch Firestore leads:', err);
+    const local = getAnalytics();
+    leads = local.leads;
+  }
+
+  return {
+    pageVisits,
+    assessmentStarts,
+    assessmentCompletions,
+    ctaClicks,
+    leads,
+  };
+}
+
+export async function clearFirebaseAnalytics(): Promise<void> {
+  try {
+    const countersRef = doc(db, 'analytics', 'counters');
+    await setDoc(countersRef, {
+      pageVisits: 0,
+      assessmentStarts: 0,
+      assessmentCompletions: 0,
+      ctaClicks: 0,
+    });
+
+    const leadsRef = collection(db, 'leads');
+    const querySnapshot = await getDocs(leadsRef);
+    const deletePromises = querySnapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
+    await Promise.all(deletePromises);
+  } catch (err) {
+    console.error('Failed to clear Firestore analytics:', err);
   }
 }
