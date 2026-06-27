@@ -253,7 +253,7 @@ export default function ResultsDashboard({ result, userInfo, onReset }: ResultsD
                   {rec.category}
                 </div>
                 <div className="space-y-2 flex-1">
-                  <p className="text-sm font-bold text-[#1A1A1A] leading-relaxed font-sans">{rec.text}</p>
+                  <p className="text-sm font-bold text-[#1A1A1A] leading-relaxed font-sans whitespace-pre-line">{rec.text}</p>
                   <div className="flex items-start gap-2 bg-white/80 p-3 rounded-xl border border-gray-150">
                     <span className="text-[10px] font-bold text-[#42c28b] uppercase tracking-wider shrink-0 mt-0.5">ACTION:</span>
                     <span className="text-xs text-gray-600 font-semibold font-sans leading-relaxed">{rec.actionItem}</span>
