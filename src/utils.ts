@@ -371,10 +371,10 @@ export function calculateAuditResult(
 
     const priorityBadge = `${priorityLevel} PRIORITY • ${categoryName}`;
     
-    const textBlock = `🎯 PRIORITY AREA:\n${priorityArea}\n\n` +
-                      `🔍 WHY THIS WAS SELECTED:\n${reason}\n\n` +
-                      `💡 WHY THIS MATTERS:\n${whyMatters}\n\n` +
-                      `📈 EXPECTED OUTCOME:\n${expectedOutcome}`;
+    const textBlock = `> PRIORITY AREA:\n${priorityArea}\n\n` +
+                      `> WHY THIS WAS SELECTED:\n${reason}\n\n` +
+                      `> WHY THIS MATTERS:\n${whyMatters}\n\n` +
+                      `> EXPECTED OUTCOME:\n${expectedOutcome}`;
 
     recommendations.push({
       category: priorityBadge,
