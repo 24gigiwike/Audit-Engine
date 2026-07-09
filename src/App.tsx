@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { UserInfo, AuditResult } from './types';
 import { incrementAnalytics, calculateAuditResult, addLead } from './utils';
 
-import Header from './components/Header';
 import LandingPage from './components/LandingPage';
 import UserInformationForm from './components/UserInformationForm';
 import Questionnaire from './components/Questionnaire';
@@ -64,8 +63,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1A1A1A] flex flex-col font-sans relative overflow-x-hidden">
-      <Header />
+    <div className="min-h-screen bg-white text-[#111111] flex flex-col font-sans relative overflow-x-hidden">
 
       <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
@@ -110,10 +108,6 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
-
-      {/* Decorative Accents */}
-      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#fb7474]/5 blur-[100px] rounded-full pointer-events-none z-0"></div>
-      <div className="absolute -top-20 right-0 w-80 h-80 bg-[#fbf6bc]/10 blur-[100px] rounded-full pointer-events-none z-0"></div>
 
       {/* Slide-over Owner Portal drawer */}
       <AnimatePresence>

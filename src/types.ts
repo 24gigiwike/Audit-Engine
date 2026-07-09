@@ -37,6 +37,12 @@ export interface AuditResult {
     category: string;
     text: string;
     actionItem: string;
+    priorityLevel?: 'HIGH' | 'MEDIUM' | 'LOW';
+    priorityArea?: string;
+    reason?: string;
+    whyMatters?: string;
+    expectedOutcome?: string;
+    categoryName?: string;
   }[];
 }
 

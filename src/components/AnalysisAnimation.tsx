@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Crown } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface AnalysisAnimationProps {
@@ -8,95 +8,111 @@ interface AnalysisAnimationProps {
 }
 
 export default function AnalysisAnimation({ onFinished }: AnalysisAnimationProps) {
-  const [activeTaskIndex, setActiveTaskIndex] = useState(0);
+  const [completedIndex, setCompletedIndex] = useState(-1);
 
-  const tasks = [
-    'Evaluating brand clarity and 5-second unique value index...',
-    'Analyzing trust validators, portfolios, and testimonial weight...',
-    'Reviewing typography, color consistency, and visual experience...',
-    'Simulating client pathways and CTA conversion readiness...',
-    'Synthesizing personalized Web Design King recommendations...',
+  const pillars = [
+    'Brand Positioning',
+    'Trust Signals',
+    'User Experience',
+    'Conversion Journey',
+    'Communication',
+    'Visibility',
+    'Authority'
   ];
 
   useEffect(() => {
-    if (activeTaskIndex < tasks.length) {
-      const timeout = setTimeout(() => {
-        setActiveTaskIndex((prev) => prev + 1);
-      }, 900); // 900ms per task
-      return () => clearTimeout(timeout);
-    } else {
-      const finishedTimeout = setTimeout(() => {
-        onFinished();
-      }, 400);
-      return () => clearTimeout(finishedTimeout);
-    }
-  }, [activeTaskIndex]);
+    // Animate each item completing one after another
+    const interval = setInterval(() => {
+      setCompletedIndex((prev) => {
+        if (prev < pillars.length - 1) {
+          return prev + 1;
+        } else {
+          clearInterval(interval);
+          // Wait briefly after all are done before continuing
+          setTimeout(() => {
+            onFinished();
+          }, 600);
+          return prev;
+        }
+      });
+    }, 450); // Each pillar takes 450ms, totaling ~3.15 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="max-w-xl mx-auto px-6 py-20 text-center selection:bg-brand-primary-light selection:text-gray-900">
-      <div className="bg-white rounded-[40px] border border-gray-100 p-10 md:p-14 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Animated Background Ring */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-          <motion.div
-            className="w-64 h-64 rounded-full border border-[#82e3aa]/10"
-            animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="w-48 h-48 rounded-full border border-[#81eee8]/10"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0, 0.2] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          />
+    <div className="min-h-screen w-full bg-white text-[#111111] font-sans flex flex-col items-center justify-center px-6 py-12 select-none">
+      <div className="max-w-md w-full border border-[#E9E9E9] bg-[#F7F7F7] rounded-2xl p-8 md:p-12 shadow-sm space-y-8">
+        
+        {/* Animated header section */}
+        <div className="space-y-2 text-center md:text-left">
+          <span className="text-[10px] font-bold tracking-widest text-[#42C28B] uppercase font-mono">
+            Audit Calibration
+          </span>
+          <h2 className="text-2xl font-medium tracking-tight text-[#111111]">
+            Analysing your digital presence...
+          </h2>
         </div>
 
-        <div className="relative z-10 flex flex-col items-center">
-          {/* Pulsing Brand Logo */}
-          <motion.img
-            src="https://res.cloudinary.com/dtkluxukm/image/upload/v1781877708/8_cwwfre.png"
-            alt="Audit Engine Logo"
-            className="h-20 w-auto object-contain mb-8"
-            animate={{
-              scale: [1, 1.08, 1],
-            }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            referrerPolicy="no-referrer"
-          />
+        {/* Beautiful checklist items */}
+        <div className="space-y-4">
+          {pillars.map((pillar, idx) => {
+            const isCompleted = idx <= completedIndex;
+            const isActive = idx === completedIndex + 1;
 
-          <span className="text-[10px] font-bold tracking-widest text-[#42c28b] uppercase mb-3 font-mono">
-            STRATEGIC AUDIT IN ACTION
-          </span>
-          <h3 className="text-2xl font-extrabold text-[#1A1A1A] tracking-tight mb-8 font-sans">
-            Analyzing your digital presence...
-          </h3>
-
-          {/* Staggered text tasks */}
-          <div className="w-full max-w-sm h-12 flex items-center justify-center mb-6">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={activeTaskIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
-                className="text-sm font-semibold text-gray-500 font-sans"
-              >
-                {tasks[Math.min(activeTaskIndex, tasks.length - 1)]}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-
-          {/* Dynamic Loading Dots */}
-          <div className="flex gap-2 justify-center">
-            {tasks.map((_, idx) => (
+            return (
               <div
                 key={idx}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  idx <= activeTaskIndex ? 'bg-[#42c28b] scale-110' : 'bg-gray-100 scale-100'
-                }`}
-              />
-            ))}
-          </div>
+                className="flex items-center justify-between p-4 rounded-xl border transition-all duration-300 bg-white"
+                style={{
+                  borderColor: isCompleted ? '#42C28B' : isActive ? '#82E3AA' : '#E9E9E9',
+                }}
+              >
+                <span
+                  className={`text-sm font-medium transition-colors duration-300 ${
+                    isCompleted ? 'text-[#111111]' : isActive ? 'text-gray-800' : 'text-gray-400'
+                  }`}
+                >
+                  {pillar}
+                </span>
+
+                <div className="relative flex items-center justify-center w-5 h-5">
+                  <AnimatePresence mode="wait">
+                    {isCompleted ? (
+                      <motion.div
+                        key="check"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className="w-5 h-5 rounded-full bg-[#42C28B] flex items-center justify-center text-white"
+                      >
+                        <Check className="w-3 h-3 stroke-[4]" />
+                      </motion.div>
+                    ) : isActive ? (
+                      <motion.div
+                        key="dot"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="w-2.5 h-2.5 rounded-full bg-[#82E3AA]"
+                      />
+                    ) : (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Small subtle progress label */}
+        <div className="text-center">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 font-mono">
+            {completedIndex === pillars.length - 1 ? 'Synthesis Complete' : 'Interpreting Audit Points'}
+          </p>
+        </div>
+
       </div>
     </div>
   );

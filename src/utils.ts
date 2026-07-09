@@ -380,6 +380,12 @@ export function calculateAuditResult(
       category: priorityBadge,
       text: textBlock,
       actionItem: actionItem,
+      priorityLevel: priorityLevel,
+      priorityArea: priorityArea,
+      reason: reason,
+      whyMatters: whyMatters,
+      expectedOutcome: expectedOutcome,
+      categoryName: categoryName,
     });
   });
 

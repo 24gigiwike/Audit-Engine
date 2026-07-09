@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { UserInfo } from '../types';
 import { INDUSTRIES } from '../data';
-import { Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface UserInformationFormProps {
@@ -31,7 +31,7 @@ export default function UserInformationForm({ onBack, onSubmit }: UserInformatio
       return;
     }
     if (!industry) {
-      setError('Please select your primary industry.');
+      setError('Please select your primary discipline.');
       return;
     }
 
@@ -45,57 +45,62 @@ export default function UserInformationForm({ onBack, onSubmit }: UserInformatio
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-12 md:py-24 selection:bg-[#82e3aa]/20 selection:text-gray-900 font-sans">
+    <div className="min-h-screen w-full bg-white text-[#111111] font-sans flex flex-col justify-between selection:bg-[#82e3aa]/20 selection:text-[#111111]">
       
-      {/* Back button positioned above the main content to let it breathe */}
-      <div className="mb-10">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-gray-800 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Home
-        </button>
+      {/* Top Bar matching Questionnaire styling */}
+      <header className="w-full px-6 py-6 md:px-12 flex items-center justify-between border-b border-[#E9E9E9] bg-white">
+        <div className="flex items-center gap-2">
+          <img 
+            src="https://res.cloudinary.com/dtkluxukm/image/upload/v1781877708/8_cwwfre.png" 
+            alt="Web Design King Logo"
+            className="h-7 w-auto object-contain"
+            referrerPolicy="no-referrer"
+          />
+          <span className="font-extrabold tracking-wide uppercase text-[10px] text-[#111111]">
+            WEB DESIGN <span className="text-[#42C28B]">KING</span>
+          </span>
+        </div>
+        
+        <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 font-mono">
+          Onboarding
+        </div>
+      </header>
+
+      {/* Progress line dummy indicating we are starting */}
+      <div className="w-full h-[2px] bg-[#E9E9E9]">
+        <div className="h-full bg-[#42C28B] w-1/12 transition-all duration-500" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-white rounded-[40px] border border-gray-100 p-8 md:p-14 shadow-3xl relative overflow-hidden"
-      >
-        
-        {/* Subtle, soft light background blob for card interior */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#81eee8]/5 via-[#82e3aa]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-        {/* Introduction */}
-        <div className="mb-12 relative z-10">
-          <span className="text-[#42c28b] font-bold tracking-widest text-[10px] uppercase block mb-3 font-mono">
-            Onboarding Consultation
+      {/* Content Form container */}
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12 md:py-20 flex flex-col justify-center space-y-12">
+        <div className="space-y-4">
+          <span className="text-[10px] font-bold tracking-widest text-[#42C28B] uppercase font-mono">
+            Calibrate Context
           </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1A1A1A] tracking-tight mb-4 leading-tight">
-            Tell us about your brand
+          <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-[#111111] leading-tight">
+            Tell us about your brand.
           </h2>
-          <p className="text-gray-500 text-sm leading-relaxed max-w-lg">
-            This intake customizes the scoring parameters. Your responses guide the engine to construct highly contextual checklists for your business profile.
+          <p className="text-gray-500 text-sm max-w-xl leading-relaxed">
+            Before measuring performance, we calibrate our evaluation criteria against your specific discipline.
           </p>
         </div>
 
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="p-4 rounded-2xl bg-[#fb7474]/10 border border-[#fb7474]/20 text-[#fb7474] text-xs font-bold"
-            >
-              {error}
-            </motion.div>
-          )}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl bg-[#FB7474]/10 border border-[#FB7474]/20 text-[#FB7474] text-xs font-bold"
+          >
+            {error}
+          </motion.div>
+        )}
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
-                Full Name <span className="text-[#fb7474] font-bold">*</span>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Full Name */}
+            <div className="space-y-2.5">
+              <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-widest text-gray-400">
+                Full Name <span className="text-[#FB7474]">*</span>
               </label>
               <input
                 id="fullName"
@@ -104,13 +109,14 @@ export default function UserInformationForm({ onBack, onSubmit }: UserInformatio
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Alex Carter"
-                className="w-full px-5 py-4 text-sm bg-[#FBFBFA]/60 hover:bg-[#FBFBFA] focus:bg-white rounded-2xl border border-gray-100 focus:border-[#42c28b] focus:ring-4 focus:ring-[#42c28b]/5 outline-none transition-all duration-250 text-gray-900 placeholder-gray-400 font-medium"
+                className="w-full px-5 py-4 text-sm bg-white rounded-xl border border-[#E9E9E9] focus:border-[#42C28B] focus:ring-2 focus:ring-[#42C28B]/5 outline-none transition-all duration-200 text-[#111111] placeholder-gray-400 font-medium shadow-sm hover:border-gray-300"
               />
             </div>
 
-            <div>
-              <label htmlFor="emailAddress" className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
-                Email Address <span className="text-[#fb7474] font-bold">*</span>
+            {/* Email */}
+            <div className="space-y-2.5">
+              <label htmlFor="emailAddress" className="block text-xs font-bold uppercase tracking-widest text-gray-400">
+                Email Address <span className="text-[#FB7474]">*</span>
               </label>
               <input
                 id="emailAddress"
@@ -119,41 +125,45 @@ export default function UserInformationForm({ onBack, onSubmit }: UserInformatio
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="alex@studio.com"
-                className="w-full px-5 py-4 text-sm bg-[#FBFBFA]/60 hover:bg-[#FBFBFA] focus:bg-white rounded-2xl border border-gray-100 focus:border-[#42c28b] focus:ring-4 focus:ring-[#42c28b]/5 outline-none transition-all duration-250 text-gray-900 placeholder-gray-400 font-medium"
+                className="w-full px-5 py-4 text-sm bg-white rounded-xl border border-[#E9E9E9] focus:border-[#42C28B] focus:ring-2 focus:ring-[#42C28B]/5 outline-none transition-all duration-200 text-[#111111] placeholder-gray-400 font-medium shadow-sm hover:border-gray-300"
               />
             </div>
           </div>
 
-          <div>
-            <label htmlFor="industryDropdown" className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
-              Primary Discipline <span className="text-[#fb7474] font-bold">*</span>
-            </label>
-            <div className="relative">
-              <select
-                id="industryDropdown"
-                required
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-                className="w-full px-5 py-4 text-sm bg-[#FBFBFA]/60 hover:bg-[#FBFBFA] focus:bg-white rounded-2xl border border-gray-100 focus:border-[#42c28b] focus:ring-4 focus:ring-[#42c28b]/5 outline-none transition-all duration-250 text-gray-900 font-medium appearance-none cursor-pointer"
-              >
-                <option value="" disabled className="text-gray-400">Select your discipline...</option>
-                {INDUSTRIES.map((ind) => (
-                  <option key={ind} value={ind} className="text-gray-800">
-                    {ind}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-gray-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-                </svg>
+          <div className="grid md:grid-cols-1 gap-8">
+            {/* Primary Discipline */}
+            <div className="space-y-2.5">
+              <label htmlFor="industryDropdown" className="block text-xs font-bold uppercase tracking-widest text-gray-400">
+                Primary Discipline <span className="text-[#FB7474]">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  id="industryDropdown"
+                  required
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  className="w-full px-5 py-4 text-sm bg-white rounded-xl border border-[#E9E9E9] focus:border-[#42C28B] focus:ring-2 focus:ring-[#42C28B]/5 outline-none transition-all duration-200 text-[#111111] font-medium appearance-none cursor-pointer shadow-sm hover:border-gray-300"
+                >
+                  <option value="" disabled>Select your primary discipline...</option>
+                  {INDUSTRIES.map((ind) => (
+                    <option key={ind} value={ind} className="text-gray-800">
+                      {ind}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-gray-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="websiteUrl" className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Website */}
+            <div className="space-y-2.5">
+              <label htmlFor="websiteUrl" className="block text-xs font-bold uppercase tracking-widest text-gray-400">
                 Website URL <span className="text-gray-300 font-normal">(Optional)</span>
               </label>
               <input
@@ -162,12 +172,13 @@ export default function UserInformationForm({ onBack, onSubmit }: UserInformatio
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 placeholder="https://mybrand.com"
-                className="w-full px-5 py-4 text-sm bg-[#FBFBFA]/60 hover:bg-[#FBFBFA] focus:bg-white rounded-2xl border border-gray-100 focus:border-[#42c28b] focus:ring-4 focus:ring-[#42c28b]/5 outline-none transition-all duration-250 text-gray-900 placeholder-gray-400 font-medium"
+                className="w-full px-5 py-4 text-sm bg-white rounded-xl border border-[#E9E9E9] focus:border-[#42C28B] focus:ring-2 focus:ring-[#42C28B]/5 outline-none transition-all duration-200 text-[#111111] placeholder-gray-400 font-medium shadow-sm hover:border-gray-300"
               />
             </div>
 
-            <div>
-              <label htmlFor="socialProfile" className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+            {/* Social Link */}
+            <div className="space-y-2.5">
+              <label htmlFor="socialProfile" className="block text-xs font-bold uppercase tracking-widest text-gray-400">
                 Social Link / Profile <span className="text-gray-300 font-normal">(Optional)</span>
               </label>
               <input
@@ -176,27 +187,31 @@ export default function UserInformationForm({ onBack, onSubmit }: UserInformatio
                 value={social}
                 onChange={(e) => setSocial(e.target.value)}
                 placeholder="linkedin.com/in/alex"
-                className="w-full px-5 py-4 text-sm bg-[#FBFBFA]/60 hover:bg-[#FBFBFA] focus:bg-white rounded-2xl border border-gray-100 focus:border-[#42c28b] focus:ring-4 focus:ring-[#42c28b]/5 outline-none transition-all duration-250 text-gray-900 placeholder-gray-400 font-medium"
+                className="w-full px-5 py-4 text-sm bg-white rounded-xl border border-[#E9E9E9] focus:border-[#42C28B] focus:ring-2 focus:ring-[#42C28B]/5 outline-none transition-all duration-200 text-[#111111] placeholder-gray-400 font-medium shadow-sm hover:border-gray-300"
               />
             </div>
           </div>
 
-          <div className="pt-4">
+          {/* Bottom navigation layout matching specification */}
+          <div className="pt-10 flex items-center justify-between border-t border-[#E9E9E9]">
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-[#111111] transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Home
+            </button>
+
             <button
               type="submit"
-              className="w-full px-8 py-4.5 bg-[#42c28b] hover:bg-[#34b07c] text-white font-bold text-base rounded-2xl shadow-lg shadow-[#42c28b]/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3.5 group"
+              className="group px-6 py-3.5 bg-[#42C28B] text-white font-semibold text-xs uppercase tracking-widest rounded-xl transition-all duration-200 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-2"
             >
               Begin Consultation
-              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
           </div>
         </form>
-
-        <div className="mt-10 pt-6 border-t border-gray-100 flex items-center justify-center gap-2.5 text-xs text-gray-400">
-          <Sparkles className="w-4 h-4 text-[#42c28b] shrink-0" />
-          <span>Your baseline data is encrypted and will only be used to calibrate your report score.</span>
-        </div>
-      </motion.div>
+      </main>
     </div>
   );
 }
